@@ -9,15 +9,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 3c278804a22f4d64da774594840f905b, type: 3}
   m_Name: Stockpile_BuildDef
-  m_EditorClassIdentifier: CozyWorld:CozyWorld:BuildDef
+  m_EditorClassIdentifier: 
   id: stockpile
-  displayName: 
-  icon: {fileID: 0}
-  prefab: {fileID: 0}
+  displayName: Stockpile
+  icon: {fileID: 21300000, guid: 7291e182de07ac84e8d6eba0a9755486, type: 3}
+  prefab: {fileID: 5447930957127394903, guid: 500f6cbe891de6a428aa968099ed0342, type: 3}
   size: {x: 1, y: 1}
   inputCosts: []
   comfortBoost: 0
-  isStorage: 0
+  isStorage: 1
   recipes: []
