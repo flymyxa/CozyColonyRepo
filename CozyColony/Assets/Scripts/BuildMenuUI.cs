@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine.Events;
 using UnityEngine;
 using UnityEngine.UI; // for UI Button
-using TMPro;     
+using TMPro;
 
 public class BuildMenuUI : MonoBehaviour
 {
@@ -21,5 +21,4 @@ public class BuildMenuUI : MonoBehaviour
             b.onClick.AddListener(() => OnBuildSelected.Invoke(def));
         }
     }
-
 }

@@ -1,7 +1,9 @@
 // Assets/Scripts/ResourceDef.cs
 using UnityEngine;
 
-    /// <summary>Defines a harvestable resource type (berries, wood, stone…)</summary>
+namespace CozyWorld
+{
+    /// <summary>Defines a harvestable resource type (berries, wood, stone)</summary>
     [CreateAssetMenu(fileName = "ResourceDef",
                      menuName = "CozyWorld/Resource Definition",
                      order = 0)]
@@ -17,3 +19,4 @@ using UnityEngine;
 
         // Future fields: icon, stackSize, rarity, etc.
     }
+}
