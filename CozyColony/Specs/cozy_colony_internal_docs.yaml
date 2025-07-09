@@ -1,0 +1,88 @@
+# Cozy Colony – Internal Machine‑Readable Docs (auto‑maintained)
+meta:
+  project: Cozy Colony
+  version: 0.1
+  updated: 2025‑07‑09
+
+refs:
+  gdd: cozycolony_gdd_v01.yml
+  tech: cozycolony_tech_v01.yml
+
+#################################################################
+# 1. GAME‑DESIGN DATA                                          #
+#################################################################
+gdd:
+  vision: >
+    Cozy survival colony‑sim; player issues high‑level orders, autonomous
+    colonists execute. Vertical‑slice scope: harvesting, building, cooking,
+    eating, leisure. No combat in slice.
+  pillars:
+    - Cozy aesthetic & approachable pacing
+    - Autonomy‑driven colonist AI; player steers, not micromanages
+    - Smooth progression loop from foraging ➜ crafting village
+  core_loop: "Harvest → Orders → Build → Cook → Eat → Play"
+  milestones:
+    - id: M3
+      title: Orders Palette UI
+      status: implemented
+    - id: M4
+      title: Save/Load JSON
+      status: in_progress
+
+#################################################################
+# 2. TECHNICAL SPEC                                            #
+#################################################################
+tech:
+  unity_version: 2022.3 LTS
+  language: C# 10
+  systems:
+    OrdersPalette:
+      scripts:
+        - OrdersPalette.cs
+        - OrderButton.cs
+        - SelectionBox.cs
+        - OrderDispatcher.cs
+      status: live
+    JobSystem:
+      script: JobSystem.cs
+      queue_type: FIFO
+      helpers:
+        - HasPending
+        - TryDequeue_overloads
+        - Remove
+        - Insert
+
+#################################################################
+# 3. TASK BACKLOG                                              #
+#################################################################
+tasks:
+  backlog:
+    - id: T4‑1
+      title: Save/Load JSON prototype
+      owner: programmer
+      status: todo
+    - id: T4‑2
+      title: Serialise colonist stats and jobs
+      owner: programmer
+      status: todo
+
+#################################################################
+# 4. DAILY LOG                                                 #
+#################################################################
+daily_log:
+  '2025‑07‑09':
+    summary: >
+      Implemented Orders Palette feature; extended JobSystem & Job to satisfy
+      legacy scripts; resolved compile errors; branch merged to main.
+    next_focus: Save/Load feature
+
+#################################################################
+# 5. UPDATE RULES                                              #
+#################################################################
+update_rules: |
+  End‑of‑day maintenance
+  ───────────────────────
+  • Append a new entry under daily_log with summary & next_focus.
+  • Move any finished tasks in tasks.backlog to status: done.
+  • Update milestone statuses when their work ships.
+  • Bump meta.version when document schema changes.

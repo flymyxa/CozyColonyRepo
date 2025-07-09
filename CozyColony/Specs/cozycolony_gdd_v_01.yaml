@@ -1,0 +1,104 @@
+# Cozy Colony – Game Design Document (GDD)
+meta:
+  title: Cozy Colony
+  file: cozycolony_gdd_v01.yml
+  version: 0.1
+  updated: 2025‑07‑09
+  authors:
+    - role: Senior Game Designer
+      name: ChatGPT‑o3
+
+#################################################################
+# 1. DESIGN PILLARS                                             #
+#################################################################
+#   • Cozy Survival – soft visuals, low lethality, high comfort.
+#   • Autonomy‑First Colonists – player gives high‑level orders; AI handles micro.
+#   • Relaxed Mastery – depth without pressure; success through planning, not twitch.
+#   • Tangible Growth – clear visual feedback for settlement evolution.
+
+pillars:
+  - Cozy Survival
+  - Autonomy‑First Colonists
+  - Relaxed Mastery
+  - Tangible Growth
+
+#################################################################
+# 2. CORE GAME LOOP                                             #
+#################################################################
+core_loop:
+  - issue_orders          # drag‑select with Orders Palette
+  - job_queue_populates   # OrderDispatcher → JobSystem
+  - colonists_execute     # path, act, animate
+  - resources_gained      # harvest, mine, chop
+  - build_expand          # spend resources on new structures
+  - fulfill_needs         # eat, rest, play; impacts mood
+
+#################################################################
+# 3. GAME SYSTEMS OVERVIEW                                      #
+#################################################################
+colonist_needs:
+  hunger:
+    decay_per_hour: 4
+    threshold_states: [Full, Peckish, Hungry, Starving]
+  fun:
+    decay_per_hour: 2
+  rest:
+    decay_per_hour: 5
+
+resources:
+  - id: berries
+    category: food_raw
+    stack: 30
+  - id: wood_log
+    category: material
+    stack: 50
+  - id: stone_chunk
+    category: material
+    stack: 30
+  - id: iron_ore
+    category: material
+    stack: 30
+
+orders_palette:
+  tools:
+    - id: harvest
+      hotkey: 1
+      job: Harvest
+    - id: cut_trees
+      hotkey: 2
+      job: Chop
+    - id: mine
+      hotkey: 3
+      job: Mine
+    - id: cancel
+      hotkey: 4
+      action: cancel
+  selection:
+    shape: drag_rect
+    max_cells: 256
+  priority_layer: medium
+
+buildings:
+  farmhouse:
+    cost: { wood_log: 40, stone_chunk: 20 }
+    capacity: 4 beds
+  campfire:
+    cost: { wood_log: 10 }
+    purpose: cook_basic
+
+#################################################################
+# 4. PROGRESSION & MILESTONES                                   #
+#################################################################
+roadmap:
+  M1: movement_pathfinding_done
+  M2: basic_needs_loop
+  M3: orders_palette_ui   # ✅ implemented 2025‑07‑09
+  M4: save_load_json
+  M5: biome_variants
+
+#################################################################
+# 5. DAILY LOG (auto‑appended)                                  #
+#################################################################
+log:
+  2025‑07‑09:
+    - M3 Orders Palette marked complete; see tech doc v0.1

@@ -4,12 +4,13 @@ using System.Linq;
 using UnityEngine;
 
 /// <summary>
-/// Static FIFO queue that colonist brains pull work from.
-/// Includes legacy helpers so older scripts keep compiling.
+/// Central FIFO queue all colonist AI pulls work from.
+/// Includes every legacy helper the older scripts expect,
+/// plus new helpers used by the Orders-Palette feature.
 /// </summary>
 public static class JobSystem
 {
-    /* ---------- internal queue ---------- */
+    /* ---------- backing store ---------- */
 
     private static readonly Queue<Job> queue = new();
 
@@ -33,41 +34,55 @@ public static class JobSystem
 
     public static void Clear() => queue.Clear();
 
-    /* ---------- legacy helpers ---------- */
+    /* ---------- legacy helpers (still used by NeedsComponent, ColonistAgent, etc.) ---------- */
 
-    /// <summary>Returns true if *any* queued job matches the requested type.</summary>
+    /// <summary>True if any queued job matches the requested type.</summary>
     public static bool HasPending(JobType type) => queue.Any(j => j.type == type);
 
     /// <summary>
-    /// New signature: tries to dequeue the first job of the requested type.
-    /// Returns true + job if found, otherwise false.
+    /// NEW signature – dequeue the first job of the requested type.
     /// </summary>
     public static bool TryDequeue(JobType type, out Job job)
     {
         job = null;
         if (queue.Count == 0) return false;
 
-        var tmp = new Queue<Job>();
-        bool found = false;
+        var temp = new Queue<Job>();
+        bool done = false;
 
         while (queue.Count > 0)
         {
             var j = queue.Dequeue();
-            if (!found && j.type == type)
+            if (!done && j.type == type)
             {
                 job = j;
-                found = true;
-                continue;                    // don’t requeue the consumed job
+                done = true;          // consume this one
+                continue;
             }
-            tmp.Enqueue(j);
+            temp.Enqueue(j);
         }
-        while (tmp.Count > 0) queue.Enqueue(tmp.Dequeue());
-        return found;
+        while (temp.Count > 0) queue.Enqueue(temp.Dequeue());
+        return done;
     }
 
     /// <summary>
-    /// **Legacy overload** for older code that expected a direct Job return.
-    /// Returns the first matching job or null. Internally calls the new signature.
+    /// LEGACY overload – older code called <c>TryDequeue(out job)</c>.
+    /// Equivalent to “give me the next job, whatever it is”.
+    /// </summary>
+    public static bool TryDequeue(out Job job)
+    {
+        if (queue.Count == 0)
+        {
+            job = null;
+            return false;
+        }
+        job = queue.Dequeue();
+        return true;
+    }
+
+    /// <summary>
+    /// Another legacy convenience overload that just returns the job
+    /// (or null) without a boolean flag.
     /// </summary>
     public static Job TryDequeue(JobType type)
     {
@@ -77,31 +92,36 @@ public static class JobSystem
 
     /* ---------- cancel & priority helpers (Orders Palette) ---------- */
 
+    /// <summary>Remove every queued job whose predicate returns true.</summary>
     public static void Remove(Predicate<Job> match)
     {
         if (queue.Count == 0) return;
 
-        var tmp = new Queue<Job>();
+        var temp = new Queue<Job>();
         while (queue.Count > 0)
         {
             var j = queue.Dequeue();
-            if (!match(j)) tmp.Enqueue(j);
+            if (!match(j)) temp.Enqueue(j);
         }
-        while (tmp.Count > 0) queue.Enqueue(tmp.Dequeue());
+        while (temp.Count > 0) queue.Enqueue(temp.Dequeue());
     }
 
+    /// <summary>
+    /// Insert a job at a specific index (used for priority layering).
+    /// Falls back to <see cref="Enqueue"/> if index is out of range.
+    /// </summary>
     public static void Insert(int index, Job job)
     {
         if (job == null) return;
         if (index <= 0 || index >= queue.Count) { Enqueue(job); return; }
 
-        var tmp = new Queue<Job>();
+        var temp = new Queue<Job>();
         int i = 0;
         while (queue.Count > 0)
         {
-            if (i++ == index) tmp.Enqueue(job);
-            tmp.Enqueue(queue.Dequeue());
+            if (i++ == index) temp.Enqueue(job);
+            temp.Enqueue(queue.Dequeue());
         }
-        while (tmp.Count > 0) queue.Enqueue(tmp.Dequeue());
+        while (temp.Count > 0) queue.Enqueue(temp.Dequeue());
     }
 }
