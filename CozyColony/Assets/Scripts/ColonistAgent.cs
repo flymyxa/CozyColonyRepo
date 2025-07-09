@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.AI;
 
 namespace CozyWorld
@@ -49,7 +49,12 @@ namespace CozyWorld
                     }
                     break;
                 case JobType.Cook:
-                    // cooking logic placeholder
+                    var food = Resources.Load<ResourceDef>("SO_Definitions/Resources/Food_ResourceDef");
+                    var meal = Resources.Load<ResourceDef>("SO_Definitions/Resources/CookedMeal_ResourceDef");
+
+                    if (GlobalInventory.Instance.Remove(food, 2))
+                        GlobalInventory.Instance.Add(meal, 1);
+
                     break;
                 case JobType.Eat:
                     _needs.Eat(25);

@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c278804a22f4d64da774594840f905b, type: 3}
+  m_Name: LogChair_BuildDef
+  m_EditorClassIdentifier: 
+  id: log_chair
+  displayName: Log Chair
+  icon: {fileID: 0}
+  prefab: {fileID: 5447930957127394903, guid: 0328b24455e104848bf24c796dd57f87, type: 3}
+  size: {x: 1, y: 1}
+  inputCosts:
+  - itemId: wood
+    count: 2
+  comfortBoost: 0
+  isStorage: 0
+  recipes: []

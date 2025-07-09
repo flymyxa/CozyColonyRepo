@@ -6,6 +6,9 @@ using UnityEngine;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;   // for Mouse.current
 #endif
+using System;        // (if present, keep)
+using TMPro;         // (if present, keep)
+using CozyWorld;     // <-- add this (or the actual namespace that holds GlobalInventory)
 
 namespace CozyWorld
 {
@@ -57,25 +60,27 @@ namespace CozyWorld
         }
 
         // ---------------------------------------------------- prototype input
-        private void OnMouseOver()
-        {
-#if ENABLE_INPUT_SYSTEM
-            bool rightClick = Mouse.current.rightButton.wasReleasedThisFrame;
-#else
-            bool rightClick = Input.GetMouseButtonUp(1);
-#endif
-            if (!rightClick) return;
+//        private void OnMouseOver()
+//        {
+//            Debug.Log($"OnMouseOver firing on {name}");
 
-            // Queue a harvest job
-            JobSystem.Enqueue(new Job
-            {
-                type = JobType.Harvest,
-                targetPos = transform.position,
-                node = gameObject
-            });
+//#if ENABLE_INPUT_SYSTEM
+//            bool rightClick = Mouse.current.rightButton.wasReleasedThisFrame;
+//#else
+//            bool rightClick = Input.GetMouseButtonUp(1);
+//#endif
+//            if (!rightClick) return;
 
-            Debug.Log($"[Input] Harvest job queued for {resourceDef.displayName}");
-        }
+//            // Queue a harvest job
+//            JobSystem.Enqueue(new Job
+//            {
+//                type = JobType.Harvest,
+//                targetPos = transform.position,
+//                node = gameObject
+//            });
+
+//            Debug.Log($"[Input] Harvest job queued for {resourceDef.displayName}");
+//        }
 
         // ---------------------------------------------------- called by ColonistAgent
         /// <summary>
@@ -90,6 +95,8 @@ namespace CozyWorld
 
             string harvester = agent != null ? agent.name : "[Unknown]";
             Debug.Log($"{harvester} harvested {realYield} {resourceDef.displayName}");
+
+            GlobalInventory.Instance.Add(resourceDef, realYield);
 
             if (_quantity <= 0)
             {
