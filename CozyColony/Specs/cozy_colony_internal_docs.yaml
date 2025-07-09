@@ -5,8 +5,8 @@ meta:
   updated: 2025‑07‑09
 
 refs:
-  gdd: cozycolony_gdd_v01.yml
-  tech: cozycolony_tech_v01.yml
+  gdd: Specs/cozycolony_gdd_v01.yml
+  tech: Specs/cozycolony_tech_v01.yml
 
 #################################################################
 # 1. GAME‑DESIGN DATA                                          #
