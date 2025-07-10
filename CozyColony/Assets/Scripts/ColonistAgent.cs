@@ -1,65 +1,63 @@
 ﻿using UnityEngine;
-using UnityEngine.AI;
 
-namespace CozyWorld
+/// <summary>Very simplified colonist brain for the vertical slice.</summary>
+public class ColonistAgent : MonoBehaviour
 {
-    /// <summary>Very simple agent: grabs a job, walks to target, executes.</summary>
-    [RequireComponent(typeof(NavMeshAgent))]
-    public class ColonistAgent : MonoBehaviour
+    private const float WalkSpeed = 2.0f;
+
+    private Job currentJob;
+    private Vector3 destination;
+    private string haulingResource;
+    private int haulingQty;
+
+    private void Update()
     {
-        private NavMeshAgent _nav;
-        private NeedsComponent _needs;
-        private Job _currentJob;
-        private bool _hasJob;
-
-        private void Awake()
+        /* ---------- Job acquisition ---------- */
+        if (currentJob == null)
         {
-            _nav = GetComponent<NavMeshAgent>();
-            _needs = GetComponent<NeedsComponent>();
+            JobSystem.TryDequeue(out currentJob);
+            if (currentJob == null) return;
+            destination = currentJob.node != null ? currentJob.node.transform.position : currentJob.targetPos;
         }
 
-        private void Update()
+        /* ---------- Movement ---------- */
+        transform.position = Vector3.MoveTowards(transform.position, destination, WalkSpeed * Time.deltaTime);
+        if (Vector3.Distance(transform.position, destination) > 0.1f) return;
+
+        /* ---------- Job execution ---------- */
+        switch (currentJob.type)
         {
-            // Get a job if idle
-            if (!_hasJob && JobSystem.TryDequeue(out _currentJob))
-            {
-                _nav.SetDestination(_currentJob.targetPos);
-                _hasJob = true;
-            }
+            case JobType.Build:
+                // Arrived at blueprint: enqueue a Haul job for logs
+                JobSystem.Enqueue(new Job { node = currentJob.node, type = JobType.Haul });
+                currentJob = null;
+                break;
 
-            if (!_hasJob) return;
+            case JobType.Haul:
+                ExecuteHaul();
+                currentJob = null;
+                break;
 
-            // Arrived?
-            if (!_nav.pathPending && _nav.remainingDistance <= _nav.stoppingDistance)
-            {
-                ExecuteJob(_currentJob);
-                _hasJob = false;
-            }
+            case JobType.Harvest:
+            case JobType.Chop:
+            case JobType.Mine:
+                Destroy(currentJob.node);   // placeholder gather action
+                currentJob = null;
+                break;
+
+            default:
+                currentJob = null;
+                break;
         }
+    }
 
-        private void ExecuteJob(Job job)
-        {
-            switch (job.type)
-            {
-                case JobType.Harvest:
-                    // simplistic: instantly collect yieldPerHit
-                    if (job.node && job.node.TryGetComponent<ResourceNode>(out var node))
-                    {
-                        node.HarvestOnce(this);
-                    }
-                    break;
-                case JobType.Cook:
-                    var food = Resources.Load<ResourceDef>("SO_Definitions/Resources/Food_ResourceDef");
-                    var meal = Resources.Load<ResourceDef>("SO_Definitions/Resources/CookedMeal_ResourceDef");
+    /* ---------- Helpers ---------- */
 
-                    if (GlobalInventory.Instance.Remove(food, 2))
-                        GlobalInventory.Instance.Add(meal, 1);
-
-                    break;
-                case JobType.Eat:
-                    _needs.Eat(25);
-                    break;
-            }
-        }
+    private void ExecuteHaul()
+    {
+        var bp = currentJob.node.GetComponent<BuildingBlueprint>();
+        if (bp == null) return;
+        // For slice: assume 5 logs delivered instantly.
+        bp.Deliver("Log", 5);
     }
 }

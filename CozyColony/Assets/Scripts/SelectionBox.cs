@@ -1,17 +1,16 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
-using UnityEngine.Diagnostics;
 
-/// <summary>Handles click-drag selection and fires an event with targets.</summary>
+/// <summary>Handles click-drag marquee selection for resource orders.</summary>
 public class SelectionBox : MonoBehaviour
 {
-    [SerializeField] private RectTransform boxUI;     // assign the transparent Image
-    [SerializeField] private LayerMask nodeMask;      // ResourceNode / Tree / Ore
-    private Vector2 start;
-    private bool active;
+    [SerializeField] private RectTransform boxUI;
+    [SerializeField] private LayerMask nodeMask;
+    private Vector2 dragStart;
+    private bool dragging;
 
-    public delegate void OnSelection(OrderType type, List<GameObject> targets);
+    public delegate void OnSelection(OrderType order, List<GameObject> targets);
     public static event OnSelection SelectionIssued;
 
     private void Update()
@@ -23,21 +22,21 @@ public class SelectionBox : MonoBehaviour
 
         if (mouse.leftButton.wasPressedThisFrame)
         {
-            active = true;
-            start = mouse.position.ReadValue();
+            dragStart = mouse.position.ReadValue();
+            dragging = true;
             boxUI.gameObject.SetActive(true);
         }
-        else if (mouse.leftButton.isPressed && active)
+        else if (mouse.leftButton.isPressed && dragging)
         {
-            var end = mouse.position.ReadValue();
-            Utils.DrawScreenRect(boxUI, start, end);
+            var dragEnd = mouse.position.ReadValue();
+            Utils.DrawScreenRect(boxUI, dragStart, dragEnd);
         }
-        else if (mouse.leftButton.wasReleasedThisFrame && active)
+        else if (mouse.leftButton.wasReleasedThisFrame && dragging)
         {
-            active = false;
+            dragging = false;
             boxUI.gameObject.SetActive(false);
 
-            var targets = PhysicsUtility.NodesInScreenRect(boxUI, nodeMask, 256); // cap to 256
+            var targets = PhysicsUtility.NodesInScreenRect(boxUI, nodeMask, 256);
             SelectionIssued?.Invoke(OrdersPalette.Instance.CurrentOrder, targets);
         }
     }

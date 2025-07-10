@@ -3,23 +3,21 @@ using UnityEngine;
 /// <summary>Enumerates every job the colony currently recognises.</summary>
 public enum JobType
 {
-    Harvest,   // gather berries / general crops
-    Chop,      // fell trees for wood
-    Mine,      // dig ore deposits
-    Cook,      // prepare meals at a stove
-    Eat,       // consume a cooked meal
-    Play       // leisure activity (e.g. chess table)
+    Harvest,
+    Chop,
+    Mine,
+    Build,
+    Haul,
+    Cook,
+    Eat,
+    Play
 }
 
-/// <summary>Plain-data container representing a single queued task.</summary>
+/// <summary>Plain-data container for queued work.</summary>
 public class Job
 {
-    /// <summary>World-space target (used by path-finding).</summary>
-    public Vector3 targetPos;
-
-    /// <summary>Optional scene object this job acts on (tree, ore, seat…).</summary>
-    public GameObject node;
-
-    /// <summary>The actual work to perform when the colonist arrives.</summary>
+    public Vector3 targetPos;   // world position (optional)
+    public GameObject node;        // scene object acted on
     public JobType type;
+    public int amount;      // used by Haul (logs carried)
 }

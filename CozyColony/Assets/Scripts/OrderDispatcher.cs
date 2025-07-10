@@ -1,25 +1,36 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>Listens for SelectionBox events and mutates the JobSystem.</summary>
+/// <summary>Converts SelectionBox output into concrete jobs (Harvest, Build…).</summary>
 public class OrderDispatcher : MonoBehaviour
 {
-    private void OnEnable() => SelectionBox.SelectionIssued += Handle;
-    private void OnDisable() => SelectionBox.SelectionIssued -= Handle;
+    private void OnEnable() => SelectionBox.SelectionIssued += HandleSelection;
+    private void OnDisable() => SelectionBox.SelectionIssued -= HandleSelection;
 
-    private void Handle(OrderType order, List<GameObject> targets)
+    private void HandleSelection(OrderType order, List<GameObject> targets)
     {
         if (targets == null || targets.Count == 0) return;
 
-        // Cancel tool simply removes matching jobs
+        /* ---- Cancel tool ---- */
         if (order == OrderType.Cancel)
         {
             JobSystem.Remove(j => j != null && targets.Contains(j.node));
             return;
         }
 
-        // Map order → job type
-        JobType jobType = order switch
+        /* ---- Build Hut ---- */
+        if (order == OrderType.BuildHut)
+        {
+            foreach (Vector3 pos in SelectionHelpers.CellCenters(targets))
+            {
+                var bp = Instantiate(Resources.Load<GameObject>("Prefabs/Blueprint_Hut"), pos, Quaternion.identity);
+                JobSystem.Enqueue(new Job { node = bp, type = JobType.Build });
+            }
+            return;
+        }
+
+        /* ---- Resource orders ---- */
+        JobType mapped = order switch
         {
             OrderType.Harvest => JobType.Harvest,
             OrderType.CutTrees => JobType.Chop,
@@ -27,9 +38,7 @@ public class OrderDispatcher : MonoBehaviour
             _ => JobType.Harvest
         };
 
-        foreach (var t in targets)
-        {
-            JobSystem.Enqueue(new Job { node = t, type = jobType });
-        }
+        foreach (var node in targets)
+            JobSystem.Enqueue(new Job { node = node, type = mapped });
     }
 }
