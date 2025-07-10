@@ -2,21 +2,21 @@
 meta:
   title: Cozy Colony
   file: cozycolony_tech_v01.yml
-  version: 0.1
-  updated: 2025‑07‑09
+  version: 0.2               # bumped after engine update
+  updated: 2025-07-09
   authors:
     - role: Senior Programmer
-      name: ChatGPT‑o3
+      name: ChatGPT-o3
 
 #################################################################
 # 1. ENGINE & PROJECT CONFIG                                    #
 #################################################################
 engine:
-  unity_version: 2021.3 LTS
+  unity_version: Unity 6000         # ← corrected
   rendering_pipeline: Universal Render Pipeline (URP)
   input_system: Unity Input System (2022)
   target_platforms:
-    - Windows 64‑bit
+    - Windows 64-bit
     - macOS (Apple Silicon + Intel)
     - Steam Deck (Proton)
   build_profile: Development | IL2CPP
@@ -28,7 +28,7 @@ repos:
   docs_branch_prefix: docs/
 
 #################################################################
-# 2. HIGH‑LEVEL ARCHITECTURE                                    #
+# 2. HIGH-LEVEL ARCHITECTURE                                    #
 #################################################################
 architecture:
   layers:
@@ -48,10 +48,10 @@ architecture:
 # 3. DATA FLOW – ORDERS PALETTE                                 #
 #################################################################
 orders_pipeline:
-  description: Drag‑select workflow from UI to colonist behaviour.
+  description: Drag-select workflow from UI to colonist behaviour.
   flow:
-    - OrdersPalette → user picks tool (Harvest / CutTrees / Mine / Cancel)
-    - SelectionBox → collects screen rect + target nodes
+    - OrdersPalette → user picks tool (Harvest / CutTrees / Mine / BuildHut / Cancel)
+    - SelectionBox  → collects screen rect + target nodes
     - OrderDispatcher → converts nodes to Job structs
     - JobSystem → queue & priority layer
     - ColonistAgent → pulls job, pathfinds, executes
@@ -63,21 +63,12 @@ orders_pipeline:
 # 4. SCRIPT GLOSSARY                                            #
 #################################################################
 script_details:
-  OrdersPalette.cs:
-    namespace: UI
-    responsibility: Toolbar, hotkeys 1‑4, current order state.
-  SelectionBox.cs:
-    namespace: UI
-    responsibility: Drag rectangle visual, overlap detection.
-  OrderDispatcher.cs:
-    namespace: Systems
-    responsibility: Convert selections → Job, cancel logic.
-  JobSystem.cs:
-    namespace: Systems
-    responsibility: Global FIFO queue, legacy helpers.
-  ColonistAgent.cs:
-    namespace: Agents
-    responsibility: Pull jobs, pathfind, animate.
+  OrdersPalette.cs: { namespace: UI, responsibility: Toolbar & hotkeys }
+  SelectionBox.cs : { namespace: UI, responsibility: Drag rectangle & highlight }
+  OrderDispatcher.cs: { namespace: Systems, responsibility: Convert selection → Job }
+  JobSystem.cs     : { namespace: Systems, responsibility: Global FIFO queue }
+  BuildingBlueprint.cs: { namespace: Gameplay, responsibility: Resource delivery & swap }
+  ColonistAgent.cs : { namespace: Agents, responsibility: Execute jobs }
 
 #################################################################
 # 5. SAVE / LOAD (NEXT MILESTONE)                               #
@@ -85,13 +76,10 @@ script_details:
 save_load_plan:
   serializer: Newtonsoft JSON (package)
   data_root: Application.persistentDataPath/CozyColony/
-  scope:
-    - World grid (resource state)
-    - Colonist roster (stats, needs)
-    - Job queue
+  scope: [world_grid, colonist_roster, job_queue]
   roadmap:
     M4: prototype snapshot save
-    M5: full round‑trip with compression
+    M5: full round-trip with compression
 
 #################################################################
 # 6. PERFORMANCE TARGETS                                        #
@@ -101,21 +89,3 @@ performance:
   gpu_frame_budget_ms: 11.1
   cpu_frame_budget_ms: 8.0
   memory_budget_mb: 512
-
-#################################################################
-# 7. VERSIONING & CI                                            #
-#################################################################
-semver: 0.1.0‑alpha
-changelog_next: "feat: Save/Load JSON snapshot (WIP)"
-ci:
-  runner: GitHub Actions (ubuntu‑latest)
-  steps:
-    - checkout
-    - unity‑builder (game‑ci)
-    - upload‑artifact (Windows build)
-
-#################################################################
-# 8. DAILY LOG ANCHOR (updated from main index)                 #
-#################################################################
-#   The main CozyColony_Internal_Docs file appends a YAML stub
-#   each day. This tech spec references that entry for context.

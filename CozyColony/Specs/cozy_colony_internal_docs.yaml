@@ -1,7 +1,7 @@
 # Cozy Colony – Internal Machine‑Readable Docs (auto‑maintained)
 meta:
   project: Cozy Colony
-  version: 0.1
+  version: 0.3
   updated: 2025‑07‑09
 
 refs:
@@ -33,7 +33,7 @@ gdd:
 # 2. TECHNICAL SPEC                                            #
 #################################################################
 tech:
-  unity_version: 2022.3 LTS
+  unity_version: Unity 6000
   language: C# 10
   systems:
     OrdersPalette:
